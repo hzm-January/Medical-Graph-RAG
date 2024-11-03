@@ -5,3 +5,4 @@ dataset_test
 test*
 .dockerignore
 app.sh
+.idea
