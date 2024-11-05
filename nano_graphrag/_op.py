@@ -462,12 +462,12 @@ async def _find_most_related_community_from_entities(
         if "clusters" not in node_d:
             continue
         related_communities.extend(json.loads(node_d["clusters"]))
-    related_community_dup_keys = [
+    related_community_dup_keys = [  # node clusters ['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '3']
         str(dp["cluster"])
         for dp in related_communities
         if dp["level"] <= query_param.level
     ]
-    related_community_keys_counts = dict(Counter(related_community_dup_keys))
+    related_community_keys_counts = dict(Counter(related_community_dup_keys))  # {'0': 12, '3': 1}
     _related_community_datas = await asyncio.gather(
         *[community_reports.get_by_id(k) for k in related_community_keys_counts.keys()]
     )
@@ -476,7 +476,7 @@ async def _find_most_related_community_from_entities(
         for k, v in zip(related_community_keys_counts.keys(), _related_community_datas)
         if v is not None
     }
-    related_community_keys = sorted(
+    related_community_keys = sorted(  # ['0','3']
         related_community_keys_counts.keys(),
         key=lambda k: (
             related_community_keys_counts[k],
@@ -604,7 +604,22 @@ async def _build_local_query_context(
     results = await entities_vdb.query(query, top_k=query_param.top_k)
     if not len(results):
         return None
-    node_datas = await asyncio.gather(
+    '''
+        {
+            'entity_type': '"PERSON"', 
+            'description': '"A 76-year-old male with multiple health conditions including coronary artery disease, 
+                              congestive heart failure, type 2 diabetes, hypertension, and Alzheimer\'s dementia.
+                              "<SEP>"The patient is the subject of the medical notes, suffering from multiple conditions 
+                              and undergoing various treatments.
+                              "<SEP>"The patient is undergoing treatment for various conditions including renal failure, 
+                              myocardial infarction, and sepsis."', 
+            'source_id': 'chunk-d5608bdb3aa5a25b6c0f796f152462c2<SEP>
+                          chunk-87d9cef9bf2900e79467061ad5003a41<SEP>
+                          chunk-01a8df0641b60633d561ef3970a93bd8', 
+            'clusters': '[{"level": 0, "cluster": 0}]'
+        }
+    '''
+    node_datas = await asyncio.gather(  # NetworkXStorage
         *[knowledge_graph_inst.get_node(r["entity_name"]) for r in results]
     )
     if not all([n is not None for n in node_datas]):

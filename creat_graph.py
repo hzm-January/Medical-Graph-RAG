@@ -17,7 +17,7 @@ def creat_metagraph(args, content, gid, n4j):
     whole_chunk = content
 
     if args.grained_chunk == True:
-        content = run_chunk(content)
+        content = run_chunk(content)  # chunking by llm
     else:
         content = [content]
     for cont in content:

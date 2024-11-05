@@ -32,16 +32,20 @@ if args.simple:
     graph_func = GraphRAG(working_dir="./nanotest")
 
     with open("./dataset_ex/report_0.txt") as f:
-        graph_func.insert(f.read())
+        graph_func.insert(f.read()) # indexing
 
     # Perform local graphrag search (I think is better and more scalable one)
     print(graph_func.query("What is the main symptom of the patient?", param=QueryParam(mode="local")))
 
 else:
 
-    url=os.getenv("NEO4J_URL")
-    username=os.getenv("NEO4J_USERNAME")
-    password=os.getenv("NEO4J_PASSWORD")
+    # url=os.getenv("NEO4J_URL")
+    # username=os.getenv("NEO4J_USERNAME")
+    # password=os.getenv("NEO4J_PASSWORD")
+
+    url='bolt://localhost:7687'
+    username='neo4j'
+    password='neo4j'
 
     # Set Neo4j instance
     n4j = Neo4jGraph(

@@ -68,7 +68,7 @@ class GraphRAG:
 
     # text embedding
     embedding_func: EmbeddingFunc = field(default_factory=lambda: openai_embedding)
-    embedding_batch_num: int = 32
+    embedding_batch_num: int = 25 #32
     embedding_func_max_async: int = 16
 
     # LLM
@@ -181,7 +181,7 @@ class GraphRAG:
             string_or_strings = [string_or_strings]
         # ---------- new docs
         new_docs = {
-            compute_mdhash_id(c.strip(), prefix="doc-"): {"content": c.strip()}
+            compute_mdhash_id(c.strip(), prefix="doc-"): {"content": c.strip()}  # prefix+md5 -> doc-1bf4a4981814d4e5722555858c4f7297
             for c in string_or_strings
         }
         _add_doc_keys = await self.full_docs.filter_keys(list(new_docs.keys()))

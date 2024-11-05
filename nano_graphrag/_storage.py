@@ -112,7 +112,7 @@ class MilvusLiteStorge(BaseVectorStorage):
         return results
 
     async def query(self, query, top_k=5):
-        embedding = await self.embedding_func([query])
+        embedding = await self.embedding_func([query])  # (1,1536)
         results = self._client.search(
             collection_name=self.namespace,
             data=embedding,

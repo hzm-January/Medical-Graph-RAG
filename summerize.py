@@ -2,9 +2,12 @@ import openai
 from concurrent.futures import ThreadPoolExecutor
 import tiktoken
 import os
+from openai import OpenAI
 
 # Add your own OpenAI API key
-openai_api_key = os.getenv("OPENAI_API_KEY")
+# openai_api_key = os.getenv("OPENAI_API_KEY")
+qwen_api_key = "sk-04321d5d09e14a1488b741338954284e"
+base_url = "https://dashscope.aliyuncs.com/compatible-mode/v1"
 
 sum_prompt = """
 Generate a structured summary from the provided medical source (report, paper, or book), strictly adhering to the following categories. The summary should list key information under each category in a concise format: 'CATEGORY_NAME: Key information'. No additional explanations or detailed descriptions are necessary unless directly related to the categories:
@@ -32,8 +35,12 @@ Each category should be addressed only if relevant to the content of the medical
 """
 
 def call_openai_api(chunk):
-    response = openai.chat.completions.create(
-        model="gpt-4-1106-preview",
+    client = OpenAI(
+        api_key=qwen_api_key,
+        base_url=base_url
+    )
+    response = client.chat.completions.create(
+        model="qwen-turbo",  # gpt-4-1106-preview
         messages=[
             {"role": "system", "content": sum_prompt},
             {"role": "user", "content": f" {chunk}"},
@@ -46,7 +53,7 @@ def call_openai_api(chunk):
     return response.choices[0].message.content
 
 def split_into_chunks(text, tokens=500):
-    encoding = tiktoken.encoding_for_model('gpt-4-1106-preview')
+    encoding = tiktoken.encoding_for_model('text-embedding-ada-002')  # gpt-4-1106-preview
     words = encoding.encode(text)
     chunks = []
     for i in range(0, len(words), tokens):
@@ -65,6 +72,11 @@ def process_chunks(content):
 
 if __name__ == "__main__":
     content = " sth you wanna test"
-    process_chunks(content)
-
+    responses = process_chunks(content)
+    print("-"*100)
+    print(responses)
+    content = " 感冒喝什么药？"
+    responses = process_chunks(content)
+    print("-" * 100)
+    print(responses)
 # Can take up to a few minutes to run depending on the size of your data input

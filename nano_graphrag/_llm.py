@@ -8,7 +8,10 @@ from .base import BaseKVStorage
 async def openai_complete_if_cache(
     model, prompt, system_prompt=None, history_messages=[], **kwargs
 ) -> str:
-    openai_async_client = AsyncOpenAI()
+    openai_async_client = AsyncOpenAI(
+        api_key="sk-04321d5d09e14a1488b741338954284e",
+        base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
+    )
     hashing_kv: BaseKVStorage = kwargs.pop("hashing_kv", None)
     messages = []
     if system_prompt:
@@ -36,7 +39,7 @@ async def gpt_4o_complete(
     prompt, system_prompt=None, history_messages=[], **kwargs
 ) -> str:
     return await openai_complete_if_cache(
-        "gpt-4o",
+        "qwen-turbo",  # gpt-4o
         prompt,
         system_prompt=system_prompt,
         history_messages=history_messages,
@@ -48,7 +51,7 @@ async def gpt_4o_mini_complete(
     prompt, system_prompt=None, history_messages=[], **kwargs
 ) -> str:
     return await openai_complete_if_cache(
-        "gpt-4o-mini",
+        "qwen-turbo",  # gpt-4o-mini
         prompt,
         system_prompt=system_prompt,
         history_messages=history_messages,
@@ -58,8 +61,11 @@ async def gpt_4o_mini_complete(
 
 @wrap_embedding_func_with_attrs(embedding_dim=1536, max_token_size=8192)
 async def openai_embedding(texts: list[str]) -> np.ndarray:
-    openai_async_client = AsyncOpenAI()
+    openai_async_client = AsyncOpenAI(
+        api_key="sk-04321d5d09e14a1488b741338954284e",
+        base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
+    )
     response = await openai_async_client.embeddings.create(
-        model="text-embedding-3-small", input=texts, encoding_format="float"
+        model="text-embedding-v1", input=texts, encoding_format="float"  # text-embedding-3-small  text-embedding-ada-002 cl100k_base
     )
     return np.array([dp.embedding for dp in response.data])
